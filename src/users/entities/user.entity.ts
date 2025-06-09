@@ -14,9 +14,15 @@ export class User {
     name: string;
 
     @Column()
+    password: string;
+
+    @Column({ nullable: true })
+    refreshToken: string;
+
+    @Column({ nullable: true })
     location: string;
 
-    @Column()
+    @Column({ nullable: true })
     wallet: string;
 
     @CreateDateColumn()
