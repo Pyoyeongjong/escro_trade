@@ -8,6 +8,7 @@ import * as yaml from 'js-yaml';
 import * as fs from 'fs';
 import configuration from './configs/configuration';
 import { AuthModule } from './auth/auth.module';
+import { ProductModule } from './products/product.module';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { AuthModule } from './auth/auth.module';
         load: [configuration],
     }),
     TypeOrmModule.forRootAsync(typeORMConfig),
-    AuthModule
+    AuthModule,
+    ProductModule
   ],
   controllers: [AppController],
   providers: [AppService],

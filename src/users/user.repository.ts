@@ -24,10 +24,14 @@ export class UserRepository {
 
         const user = this.userRepository.create({
             name: username,
-            password: hashedPassword
+            password: hashedPassword,
+            products: [],
+            buy_list: [],
+            replies: [],
+            liked_products: [],
+            transactions: [],
+            trade_offers: []
         });
-
-        console.log(username, password);
 
         try {
             await this.userRepository.save(user);

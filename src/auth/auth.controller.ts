@@ -26,4 +26,9 @@ export class AuthController {
         return this.authService.refreshAccessToken(refreshToken);
     }
 
+    @Get('/test')
+    @UseGuards(AuthGuard())
+    test(@GetUser() user: User) {
+        console.log(user)
+    }
 }

@@ -5,10 +5,11 @@ import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
 import { Liked_Product } from "src/users/entities/liked_product.entity";
 import { UserRepository } from "../users/user.repository";
-import { JwtModule } from "@nestjs/jwt";
+import { JwtModule, JwtService } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
 import { JwtStrategy } from "./jwt.strategy";
 import { ConfigModule, ConfigService } from "@nestjs/config";
+import { UserModule } from "src/users/user.module";
 
 @Module({
     imports: [
@@ -25,10 +26,11 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
             })
         }),
         PassportModule.register({defaultStrategy: 'jwt'}),
-        ConfigModule
+        ConfigModule,
+        UserModule
     ],
-    exports: [JwtStrategy, PassportModule],
-    providers: [AuthService, UserRepository, JwtStrategy],
+    exports: [JwtStrategy, PassportModule, JwtModule],
+    providers: [AuthService, JwtStrategy],
     controllers: [AuthController],
 })
 export class AuthModule {}
