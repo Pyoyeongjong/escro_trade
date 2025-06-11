@@ -4,6 +4,7 @@ import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn} fr
 import { Liked_Product } from "./liked_product.entity";
 import { Transaction } from "src/transactions/transaction.entity";
 import { TradeOffer } from "src/trade-offer/trade_offer.entity";
+import { Exclude } from "class-transformer";
 
 @Entity()
 export class User {
@@ -14,9 +15,11 @@ export class User {
     name: string;
 
     @Column()
+    @Exclude()
     password: string;
 
     @Column({ nullable: true })
+    @Exclude()
     refreshToken: string;
 
     @Column({ nullable: true })

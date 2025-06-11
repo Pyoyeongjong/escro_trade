@@ -30,4 +30,8 @@ export class ProductImgRepository {
             throw new InternalServerErrorException("Can't create a new ProductImg")
         }
     }
+
+    async removeProductImg(productImg: Product_Img) {
+        await this.productImgRepository.remove(productImg);
+    }
 }

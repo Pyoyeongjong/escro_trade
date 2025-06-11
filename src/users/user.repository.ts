@@ -34,14 +34,28 @@ export class UserRepository {
         });
 
         try {
-            await this.userRepository.save(user);
+            return await this.userRepository.save(user);
         } catch (error) {
             throw new InternalServerErrorException("Can't create a new User")
         }
     }
 
-    async findOne(name: string): Promise<User | null> {
-        return this.userRepository.findOneBy({name});
+    async saveUser(user: User) {
+        try {
+            return await this.userRepository.save(user);
+        } catch (error) {
+            throw new InternalServerErrorException("Can't save the user");
+        }
+    }
+
+    async findOne(name: string): Promise<User> {
+        const user = await this.userRepository.findOne({
+            where: {name},
+            relations: ['products', 'buy_list', 'replies', 'liked_products', 'transactions', 'trade_offers']
+        });
+        if(!user)
+            throw new NotFoundException(`User with name ${name} not found`);
+        return user;
     }
 
     async updateRefreshToken(name: string, refreshToken: string): Promise<void> {

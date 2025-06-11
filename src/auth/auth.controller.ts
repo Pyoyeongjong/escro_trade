@@ -11,24 +11,31 @@ export class AuthController {
     constructor( private authService: AuthService){}
 
     @Post('signup')
-    signup(@Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto): Promise<void> {
+    async signup(@Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto): Promise<void> {
         return this.authService.signUp(authCredentialsDto);
     }
 
     @Post('signin')
-    signin(@Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto): Promise<{accessToken: string, refreshToken: string}> {
+    async signin(@Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto): Promise<{accessToken: string, refreshToken: string}> {
         return this.authService.signIn(authCredentialsDto);
     }
 
-    @Post('/refresh')
-    refresh(@Body('refreshToken') refreshToken: string): Promise<{accessToken: string}> {
+    @Post('refresh')
+    async refresh(@Body('refreshToken') refreshToken: string): Promise<{accessToken: string}> {
 
         return this.authService.refreshAccessToken(refreshToken);
     }
 
-    @Get('/test')
-    @UseGuards(AuthGuard())
-    test(@GetUser() user: User) {
-        console.log(user)
+    //TODO:
+    @Post('findId')
+    async findId(){
+
     }
+
+    @Post('findPw')
+    async findPw(){
+        
+    }
+
+
 }

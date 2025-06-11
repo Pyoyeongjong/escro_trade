@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { Product } from "./entities/product.entity";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -39,7 +39,18 @@ export class ProductRepository {
         try {
             return await this.productRepository.save(product);
         } catch (error) {
-            throw new InternalServerErrorException("Can't create a new Product")
+            throw new InternalServerErrorException("Can't save the Product")
         }
+    }
+
+    async findById(id: number): Promise<Product> {
+        const product = await this.productRepository.findOne({
+            where: {id},
+            relations: [ "createdBy", "buyer", "images", "replies", "liked_users", "transactions", "trade_offers" ]
+        })
+        if (!product) {
+            throw new NotFoundException(`Product with id ${id} not found`);
+        }
+        return product;
     }
 }

@@ -10,6 +10,7 @@ import { ProductImgRepository } from "./product-img.repository";
 import { ConfigModule } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
 import { UserModule } from "src/users/user.module";
+import { ReplyModule } from "src/replies/reply.module";
 
 @Module({
     imports: [
@@ -19,7 +20,8 @@ import { UserModule } from "src/users/user.module";
         // import 해야한다.
         AuthModule,
         ConfigModule,
-        UserModule
+        UserModule,
+        ReplyModule
     ],
     providers: [ProductService, ProductRepository, ProductImgRepository],
     controllers: [ProductController]

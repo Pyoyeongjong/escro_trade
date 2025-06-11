@@ -56,8 +56,6 @@ export class AuthService {
 
             const user = await this.userRepository.findOne(payload.username);
 
-            if (!user)
-                throw new ForbiddenException("User not found");
             if  (user.refreshToken !== refreshToken) 
                 throw new ForbiddenException("Invalid refresh Token");
 
