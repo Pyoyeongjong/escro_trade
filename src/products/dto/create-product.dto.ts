@@ -12,8 +12,8 @@ export class CreateProductDto {
     @MaxLength(300)
     description: string;
 
-    @IsNumber()
     @Type(() => Number)
+    @IsNumber()
     @Min(0)
     @Max(999999999)
     cost: number;

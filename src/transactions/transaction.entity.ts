@@ -3,7 +3,7 @@ import { User } from "src/users/entities/user.entity";
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Timestamp } from "typeorm";
 
 @Entity()
-export class Transaction {
+export class TransactionEntity {
     @PrimaryGeneratedColumn()
     id: number;
 

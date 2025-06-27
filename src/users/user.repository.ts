@@ -10,12 +10,12 @@ export class UserRepository {
     constructor(
         @InjectRepository(User)
         private userRepository: Repository<User>
-    ){}
+    ) { }
 
     async createUser(authCredentialsDto: AuthCredentialsDto) {
         const { username, password } = authCredentialsDto;
 
-        const exist_user = await this.userRepository.findOneBy({name: username})
+        const exist_user = await this.userRepository.findOneBy({ name: username })
         if (exist_user)
             throw new ConflictException('Username already exists.');
 
@@ -50,16 +50,18 @@ export class UserRepository {
 
     async findOne(name: string): Promise<User> {
         const user = await this.userRepository.findOne({
-            where: {name},
-            relations: ['products', 'buy_list', 'replies', 'liked_products', 'transactions', 'trade_offers']
+            where: { name },
+            relations: ['products', 'products.buyer', 'buy_list', 'replies', 'liked_products', 'transactions', 'trade_offers',
+                'trade_offers.product', 'products.trade_offers'
+            ]
         });
-        if(!user)
+        if (!user)
             throw new NotFoundException(`User with name ${name} not found`);
         return user;
     }
 
     async updateRefreshToken(name: string, refreshToken: string): Promise<void> {
-        const user = await this.userRepository.findOneBy({name});
+        const user = await this.userRepository.findOneBy({ name });
 
         if (!user)
             throw new NotFoundException('User not found');

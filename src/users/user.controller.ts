@@ -2,40 +2,44 @@ import { Body, Controller, Get, Param, Post, Req, UnauthorizedException, UseGuar
 import { AuthGuard } from "@nestjs/passport";
 import { getAccessToken } from "src/commom/utils/auth.utils";
 import { UserService } from "./user.service";
-import { UpdateUserDto } from "./dto/update-user.dto";
+import { UpdateLocationDto } from "./dto/update-user.dto";
+import { UpdateWalletDto } from "./dto/update-wallet.dto";
+import { Request } from "express";
+import { MyAuthGuard } from "src/auth/auth.guard";
 
 @Controller('user')
 export class UserController {
 
-    constructor (private userService: UserService) {}
+    constructor(private userService: UserService) { }
 
-    @Post('modifyWalletAddr')
-    @UseGuards(AuthGuard())
-    async modifyWalletAddr(
-        @Req() req: Request,
-        @Body(ValidationPipe) walletAddr: string,
-    ){
-        const accessToken = getAccessToken(req);
-        if (!accessToken)
-            throw new UnauthorizedException("Unauthorized User");
 
-        return this.userService.modifyWalletAddr(accessToken, walletAddr);
-    }
-
-    @Get('getUser/:username')
+    // 마이페이지용
+    @Get('getUser')
+    @UseGuards(MyAuthGuard)
     async getUser(
-        @Param('username') username: string
-    ){
-        const user = await this.userService.getUserByName(username);
-        return user;
+        @Req() req: Request,
+    ) {
+        const username = req.user!.username;
+        return await this.userService.getUserByToken(username);
     }
 
-    //TODO: 
-    @Post('update/:username')
-    async updateUser(
-        @Param('username') username: string,
-        @Body(ValidationPipe) updateUserDto: UpdateUserDto
-    ){
+    @Post('updateLocation')
+    @UseGuards(MyAuthGuard)
+    async updateUserLocation(
+        @Req() req: Request,
+        @Body(ValidationPipe) updateLocationDto: UpdateLocationDto
+    ) {
+        const username = req.user!.username;
+        return await this.userService.updateUserLocation(username, updateLocationDto);
+    }
 
+    @Post('updateWallet')
+    @UseGuards(MyAuthGuard)
+    async updateUserWallet(
+        @Req() req: Request,
+        @Body(ValidationPipe) updateWalletDto: UpdateWalletDto
+    ) {
+        const username = req.user!.username;
+        return await this.userService.updateUserWallet(username, updateWalletDto);
     }
 }

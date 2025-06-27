@@ -6,14 +6,15 @@ import { AuthService } from "./auth.service";
 import { Liked_Product } from "src/users/entities/liked_product.entity";
 import { UserRepository } from "../users/user.repository";
 import { JwtModule, JwtService } from "@nestjs/jwt";
-import { PassportModule } from "@nestjs/passport";
+import { AuthGuard, PassportModule } from "@nestjs/passport";
 import { JwtStrategy } from "./jwt.strategy";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { UserModule } from "src/users/user.module";
+import { MyAuthGuard } from "./auth.guard";
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([User]), 
+        TypeOrmModule.forFeature([User]),
         // JWT 기본옵션
         JwtModule.registerAsync({
             imports: [ConfigModule],
@@ -25,12 +26,12 @@ import { UserModule } from "src/users/user.module";
                 }
             })
         }),
-        PassportModule.register({defaultStrategy: 'jwt'}),
+        PassportModule.register({ defaultStrategy: 'jwt' }),
         ConfigModule,
-        UserModule
+        UserModule,
     ],
-    exports: [JwtStrategy, PassportModule, JwtModule],
-    providers: [AuthService, JwtStrategy],
+    exports: [JwtStrategy, PassportModule, JwtModule, MyAuthGuard],
+    providers: [AuthService, JwtStrategy, MyAuthGuard],
     controllers: [AuthController],
 })
-export class AuthModule {}
+export class AuthModule { }

@@ -2,7 +2,7 @@ import { Product } from "src/products/entities/product.entity";
 import { Reply } from "src/replies/reply.entity";
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 import { Liked_Product } from "./liked_product.entity";
-import { Transaction } from "src/transactions/transaction.entity";
+import { TransactionEntity } from "src/transactions/transaction.entity";
 import { TradeOffer } from "src/trade-offer/trade_offer.entity";
 import { Exclude } from "class-transformer";
 
@@ -43,8 +43,8 @@ export class User {
     @OneToMany(() => Liked_Product, lp => lp.user)
     liked_products: Liked_Product[];
 
-    @OneToMany(() => Transaction, tx => tx.user)
-    transactions: Transaction[];
+    @OneToMany(() => TransactionEntity, tx => tx.user)
+    transactions: TransactionEntity[];
 
     @OneToMany(() => TradeOffer, to => to.buyer)
     trade_offers: TradeOffer[];

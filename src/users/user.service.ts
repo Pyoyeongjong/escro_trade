@@ -8,39 +8,44 @@ import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import { NotFoundError } from "rxjs";
 import { instanceToPlain } from "class-transformer";
+import { UpdateLocationDto } from "./dto/update-user.dto";
+import { UpdateWalletDto } from "./dto/update-wallet.dto";
 
 @Injectable()
 export class UserService {
     constructor(
         private userRepository: UserRepository,
-        private jwtService: JwtService,
-        private configService: ConfigService
-    ) {}
+    ) { }
 
-    async modifyWalletAddr(accessToken: string, walletAddr: string) {
-        const username = this.username_from_accessToken(accessToken);
+    async updateUserLocation(username: string, updateLocationDto: UpdateLocationDto) {
         const user = await this.userRepository.findOne(username);
         if (!user)
             throw new NotFoundException("User not found");
+        user.location = updateLocationDto.location;
 
-        user.wallet = walletAddr;
+        await this.userRepository.saveUser(user);
         return {
-            message: 'Modify Wallet Address successfully',
+            message: 'Update Location successfully',
         }
     }
 
-    async getUserByName(username: string) {
+    async updateUserWallet(username: string, updateWalletDto: UpdateWalletDto) {
+        const user = await this.userRepository.findOne(username);
+        if (!user)
+            throw new NotFoundException("User not found");
+        user.wallet = updateWalletDto.wallet;
+
+        await this.userRepository.saveUser(user);
+        return {
+            message: 'Update Wallet Address successfully',
+        }
+    }
+
+
+    async getUserByToken(username: string) {
         const user = await this.userRepository.findOne(username);
         if (!user)
             throw new NotFoundException("User not found");
         return instanceToPlain(user);
-    }
-    
-
-    username_from_accessToken(accessToken: string) {
-        const payload = this.jwtService.verify(accessToken, {
-            secret: this.configService.get<string>('jwt.access_secret') ?? "access_secret"
-        })
-        return payload.username;
     }
 }

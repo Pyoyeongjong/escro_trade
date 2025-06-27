@@ -7,10 +7,25 @@ import { User } from "src/users/entities/user.entity";
 
 @Injectable()
 export class ProductRepository {
-    constructor (
+    constructor(
         @InjectRepository(Product)
         private readonly productRepository: Repository<Product>
-    ) {}
+    ) { }
+
+    async findAndCount(page: number, limit: number) {
+        const [data, total] = await this.productRepository.findAndCount({
+            skip: (page - 1) * limit,
+            take: limit,
+            order: { created_at: 'DESC' },
+            relations: ["images"]
+        })
+        return {
+            data,
+            total,
+            page,
+            lastPage: Math.ceil(total / limit)
+        }
+    }
 
     async createProduct(createProductDto: CreateProductDto, user: User) {
         const { title, description, cost } = createProductDto;
@@ -35,6 +50,14 @@ export class ProductRepository {
         }
     }
 
+    async removeProduct(product: Product) {
+        try {
+            return await this.productRepository.remove(product);
+        } catch (error) {
+            throw new InternalServerErrorException("Can't remove the Product")
+        }
+    }
+
     async saveProduct(product: Product) {
         try {
             return await this.productRepository.save(product);
@@ -45,8 +68,8 @@ export class ProductRepository {
 
     async findById(id: number): Promise<Product> {
         const product = await this.productRepository.findOne({
-            where: {id},
-            relations: [ "createdBy", "buyer", "images", "replies", "liked_users", "transactions", "trade_offers" ]
+            where: { id },
+            relations: ["createdBy", "buyer", "images", "replies", "replies.user", "liked_users", "transactions", "trade_offers", "trade_offers.buyer"]
         })
         if (!product) {
             throw new NotFoundException(`Product with id ${id} not found`);

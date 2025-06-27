@@ -14,12 +14,12 @@ export class TradeOffer {
     @CreateDateColumn()
     created_at: Date;
 
-    @Column()
+    @Column({ nullable: true })
     accepted: string;
 
     @ManyToOne(() => User, user => user.trade_offers)
     buyer: User;
-    
+
     @ManyToOne(() => Product, product => product.trade_offers)
     product: Product;
 }

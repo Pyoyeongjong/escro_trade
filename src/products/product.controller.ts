@@ -1,4 +1,4 @@
-import { Body, Get, HttpStatus, Param, ParseFilePipe, ParseFilePipeBuilder, ParseIntPipe, Req, UnauthorizedException, UploadedFile, UploadedFiles, UseGuards, ValidationPipe } from "@nestjs/common";
+import { Body, Get, HttpStatus, Param, ParseFilePipe, ParseFilePipeBuilder, ParseIntPipe, Query, Req, UnauthorizedException, UploadedFile, UploadedFiles, UseGuards, ValidationPipe } from "@nestjs/common";
 import { UseInterceptors } from "@nestjs/common";
 import { Controller, Post } from "@nestjs/common";
 import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
@@ -13,11 +13,15 @@ import { AuthGuard } from "@nestjs/passport";
 import { getAccessToken } from "src/commom/utils/auth.utils";
 import { ReplyDto } from "src/replies/dto/reply.dto";
 import { access } from "fs";
+import { CreateTradeOfferDto } from "src/trade-offer/dto/create-trade-offer.dto";
+import { MyAuthGuard } from "src/auth/auth.guard";
+import { Request } from "express";
+import { UpdateProductStatusDto } from "./dto/update-product-status.dto";
 
 @Controller('product')
 export class ProductController {
 
-    constructor (private productService: ProductService){}
+    constructor(private productService: ProductService) { }
 
     @UseInterceptors(FilesInterceptor('image', 5, {
         storage: diskStorage({
@@ -30,20 +34,17 @@ export class ProductController {
         })
     }))
     @Post('create')
-    @UseGuards(AuthGuard())
+    @UseGuards(MyAuthGuard)
     async createProduct(
         @Req() req: Request,
         @Body(ValidationPipe) createProductDto: CreateProductDto,
         @UploadedFiles(new ParseImagesPipe(5 * 1024 * 1024))
         files: Express.Multer.File[],
-    ){
-        const accessToken = getAccessToken(req);
-        if (!accessToken) {
-            throw new UnauthorizedException('Unauthorized User');
-        }
-
-        const imageUrls = files?.map(file => `/uploads/${file.filename}`) || [];
-        return this.productService.saveProduct(createProductDto, accessToken, imageUrls);
+    ) {
+        console.log(req.user);
+        const username = req.user!.username;
+        const imageUrls = files?.map(file => `http://localhost:3001/uploads/${file.filename}`) || [];
+        return this.productService.saveProduct(createProductDto, username, imageUrls);
     }
 
     @UseInterceptors(FilesInterceptor('image', 5, {
@@ -57,80 +58,95 @@ export class ProductController {
         })
     }))
     @Post('update/:id')
-    @UseGuards(AuthGuard())
+    @UseGuards(MyAuthGuard)
     async updateProduct(
         @Param('id', ParseIntPipe) id: number,
         @Req() req: Request,
         @Body(ValidationPipe) createProductDto: CreateProductDto,
         @UploadedFiles(new ParseImagesPipe(5 * 1024 * 1024))
         files: Express.Multer.File[],
-    ){
-        const accessToken = getAccessToken(req);
-        if (!accessToken) {
-            throw new UnauthorizedException('Unauthorized User');
-        }
-
+    ) {
+        const username = req.user!.username;
         const imageUrls = files?.map(file => `/uploads/${file.filename}`) || [];
-        return await this.productService.updateProduct(id ,createProductDto, accessToken, imageUrls);
+        return await this.productService.updateProduct(id, createProductDto, username, imageUrls);
     }
 
     @Post(':productId/addReply')
-    @UseGuards(AuthGuard())
+    @UseGuards(MyAuthGuard)
     async createReply(
         @Param('productId', ParseIntPipe) productId: number,
         @Req() req: Request,
         @Body(ValidationPipe) replyDto: ReplyDto
-    ){
-        const accessToken = getAccessToken(req);
-        if(!accessToken) {
-            throw new UnauthorizedException('Unauthorized User');
-        }
+    ) {
+        const username = req.user!.username;
+        return await this.productService.addReply(replyDto, productId, username);
+    }
 
-        return await this.productService.addReply(replyDto, productId, accessToken);
+    @Post('remove/:productId')
+    @UseGuards(MyAuthGuard)
+    async removeProduct(
+        @Param('productId', ParseIntPipe) productId: number,
+        @Req() req: Request,
+    ) {
+        const username = req.user!.username;
+        return await this.productService.removeProduct(username, productId);
+    }
+
+    @Get('getProductsTo/:id')
+    @UseGuards(MyAuthGuard)
+    getTradeOffer(
+        @Req() req: Request,
+        @Param('id', ParseIntPipe) productId: number
+    ) {
+        const username = req.user!.username;
+        return this.productService.getProductsTo(username, productId);
+    }
+
+    @Post(':productId/offerTrade')
+    @UseGuards(MyAuthGuard)
+    async offerTrade(
+        @Param('productId', ParseIntPipe) productId: number,
+        @Req() req: Request,
+        @Body(ValidationPipe) createTradeOfferDto: CreateTradeOfferDto
+    ) {
+
+        const username = req.user!.username;
+        return await this.productService.createTradeOffer(createTradeOfferDto, username, productId);
+    }
+
+    @Get('getProduct/:productId')
+    async getOneProduct(
+        @Param('productId', ParseIntPipe) productId: number,
+    ) {
+        return await this.productService.getProduct(productId);
+    }
+
+    @Post('setStatus/:productId')
+    @UseGuards(MyAuthGuard)
+    async setStatus(
+        @Req() req: Request,
+        @Param("productId", ParseIntPipe) productId: number,
+        @Body(ValidationPipe) updateProductStatusDto: UpdateProductStatusDto
+    ) {
+        const username = req.user!.username;
+        return await this.productService.updateProductStatus(username, productId, updateProductStatusDto);
     }
 
     //TODO:
-    @Post('remove/:productId')
-    async removeProduct(){
-
-    }
-
-    @Post(':productId/report') 
-    @UseGuards(AuthGuard())
+    @Post(':productId/report')
+    @UseGuards(MyAuthGuard)
     async reportProduct(
         @Param('productId', ParseIntPipe) productId: number,
     ) {
 
     }
 
-    @Post(':productId/offerTrade')
-    @UseGuards(AuthGuard())
-    async offerTrade(
-        @Param('productId', ParseIntPipe) productId: number,
-    ){
-
-    }
-
     // 페이징 처리 해야한다!
     @Get('getProducts')
     async getProducts(
-
-    ){
-
-    }
-
-    // 페이징 처리 해야한다!
-    @Get('getReplies')
-    async getReplies(
-
-    ){
-
-    }
-
-    @Get('getProduct/:productId')
-    async getOneProduct(
-        @Param('productId', ParseIntPipe) productId: number,
-    ){
-
+        @Query('page') page: number,
+        @Query('limit') limit: number
+    ) {
+        return this.productService.getPaginatedProducts(page, limit);
     }
 }

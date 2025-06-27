@@ -1,9 +1,9 @@
 import { User } from "src/users/entities/user.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Timestamp, UpdateDateColumn} from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Timestamp, UpdateDateColumn } from "typeorm";
 import { Product_Img } from "./product-image.entity";
 import { Reply } from "src/replies/reply.entity";
 import { Liked_Product } from "src/users/entities/liked_product.entity";
-import { Transaction } from "src/transactions/transaction.entity";
+import { TransactionEntity } from "src/transactions/transaction.entity";
 import { TradeOffer } from "src/trade-offer/trade_offer.entity";
 
 @Entity()
@@ -44,9 +44,9 @@ export class Product {
     @OneToMany(() => Liked_Product, lp => lp.product)
     liked_users: Liked_Product[];
 
-    @OneToMany(() => Transaction, tx => tx.product)
-    transactions: Transaction[];
+    @OneToMany(() => TransactionEntity, tx => tx.product)
+    transactions: TransactionEntity[];
 
-    @OneToMany(() => TradeOffer, to => to.buyer)
+    @OneToMany(() => TradeOffer, to => to.product)
     trade_offers: TradeOffer[];
 }

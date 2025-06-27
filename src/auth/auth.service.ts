@@ -17,10 +17,10 @@ export class AuthService {
         private readonly userRepository: UserRepository,
         private readonly configService: ConfigService,
         private jwtService: JwtService
-    ) {}
+    ) { }
 
-    async signUp(authCredentialsDto: AuthCredentialsDto): Promise<void> {
-        await this.userRepository.createUser(authCredentialsDto)
+    async signUp(authCredentialsDto: AuthCredentialsDto) {
+        return await this.userRepository.createUser(authCredentialsDto)
     }
 
     async signIn(authCredentialsDto: AuthCredentialsDto): Promise<{
@@ -37,26 +37,39 @@ export class AuthService {
                 secret: this.configService.get<string>('jwt.refresh_secret') ?? "refresh_secret",
                 expiresIn: '7d',
             });
-            
+
             await this.userRepository.updateRefreshToken(username, refreshToken);
-            
+
             return { accessToken, refreshToken };
         } else {
             throw new UnauthorizedException('Login failed')
         }
     }
 
+    async verifyAccessToken(accessToken: string) {
+        try {
+            this.jwtService.verify(accessToken, {
+                secret: this.configService.get<string>('jwt.access_secret') ?? "access_secret",
+            })
+        } catch (err) {
+            throw new UnauthorizedException("Acceess Token expired or invalid");
+        }
+
+        const username = this.username_from_accessToken(accessToken);
+        return { isVerify: true, username: username };
+    }
+
     async refreshAccessToken(refreshToken: string): Promise<{
         accessToken: string
     }> {
         try {
-            const payload = this.jwtService.verify(refreshToken, { 
+            const payload = this.jwtService.verify(refreshToken, {
                 secret: this.configService.get<string>('jwt.refresh_secret') ?? "refresh_secret",
             })
 
             const user = await this.userRepository.findOne(payload.username);
 
-            if  (user.refreshToken !== refreshToken) 
+            if (user.refreshToken !== refreshToken)
                 throw new ForbiddenException("Invalid refresh Token");
 
             const new_payload = { username: payload.username };
@@ -65,5 +78,12 @@ export class AuthService {
         } catch (err) {
             throw new ForbiddenException("Refresh Token expired or invalid");
         }
+    }
+
+    username_from_accessToken(accessToken: string) {
+        const payload = this.jwtService.verify(accessToken, {
+            secret: this.configService.get<string>('jwt.access_secret') ?? "access_secret"
+        })
+        return payload.username;
     }
 }

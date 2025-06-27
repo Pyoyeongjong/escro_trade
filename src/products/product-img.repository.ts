@@ -3,13 +3,15 @@ import { Product_Img } from "./entities/product-image.entity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Product } from "./entities/product.entity";
+import * as path from "path";
+import * as fs from 'fs';
 
 @Injectable()
 export class ProductImgRepository {
-    constructor (
+    constructor(
         @InjectRepository(Product_Img)
         private readonly productImgRepository: Repository<Product_Img>
-    ) {}
+    ) { }
 
     async createProductImg(imageUrl: string) {
         const productImg = this.productImgRepository.create({
@@ -32,6 +34,14 @@ export class ProductImgRepository {
     }
 
     async removeProductImg(productImg: Product_Img) {
+        const filePath = path.join(__dirname, '..', '..', 'uploads', productImg.image_url);
+
+        fs.unlink(filePath, (err) => {
+            if (err) {
+                console.error("Failed to delete image:", err);
+            }
+        })
         await this.productImgRepository.remove(productImg);
+
     }
 }
