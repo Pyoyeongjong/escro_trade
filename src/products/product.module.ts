@@ -25,7 +25,7 @@ import { TradeOfferModule } from "src/trade-offer/trade_offer.module";
         ReplyModule,
         forwardRef(() => TradeOfferModule)
     ],
-    exports: [ProductRepository],
+    exports: [ProductRepository, ProductService],
     providers: [ProductService, ProductRepository, ProductImgRepository],
     controllers: [ProductController]
 })

@@ -1,6 +1,6 @@
 http:
   host: 'localhost'
-  port: 3000
+  port: 3001
   
 db: 
   type: 'postgres'
@@ -13,3 +13,7 @@ jwt:
   expiresIn: 3600
   access_secret: 'access1234'
   refresh_secret: 'refresh1234'
+
+sepolia:
+  apiKey: 'v9Gazollh4CKewLFJfFiN'
+  privateKey: '4d007109f71fea0644b9b0ec59b4e28c82e1ef8935e4d723845cd416f6b40dae'

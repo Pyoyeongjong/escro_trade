@@ -5,4 +5,5 @@ export enum ProductStatus {
     PROCESSING = "processing",
     SHIPPING = "shipping",
     FINISHED = "finished",
+    Canceled = "canceled"
 }

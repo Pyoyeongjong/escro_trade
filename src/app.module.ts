@@ -13,12 +13,13 @@ import { UserModule } from './users/user.module';
 import { ReplyModule } from './replies/reply.module';
 import { TradeOfferModule } from './trade-offer/trade_offer.module';
 import { TransactionModule } from './transactions/transaction.module';
+import { TransactionListenerService } from './transfer-listener.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-        isGlobal: true,
-        load: [configuration],
+      isGlobal: true,
+      load: [configuration],
     }),
     TypeOrmModule.forRootAsync(typeORMConfig),
     AuthModule,
@@ -29,6 +30,6 @@ import { TransactionModule } from './transactions/transaction.module';
     TransactionModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, TransactionListenerService],
 })
-export class AppModule {}
+export class AppModule { }

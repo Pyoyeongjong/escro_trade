@@ -8,13 +8,22 @@ export class TransactionEntity {
     id: number;
 
     @Column()
+    txId: number;
+
+    @Column()
+    productId: number;
+
+    @Column()
     tx_type: string;
 
     @Column()
-    status: string;
+    cost: number;
 
     @Column()
-    tx_hash: string;
+    owner: string;
+
+    @Column()
+    status: string;
 
     @CreateDateColumn()
     created_at: Date;

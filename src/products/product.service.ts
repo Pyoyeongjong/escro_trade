@@ -9,6 +9,7 @@ import { CreateTradeOfferDto } from "src/trade-offer/dto/create-trade-offer.dto"
 import { TradeOfferRepository } from "src/trade-offer/trade_offer.repository";
 import { instanceToPlain } from "class-transformer";
 import { UpdateProductStatusDto } from "./dto/update-product-status.dto";
+import { ProductStatus } from "src/types/product-status";
 
 @Injectable()
 export class ProductService {
@@ -19,6 +20,27 @@ export class ProductService {
         private replyRepository: ReplyRepository,
         private tradeOfferRepository: TradeOfferRepository
     ) { }
+
+    async updateProductStatusByTx(productId: number, status: ProductStatus) {
+        const validTransition: Record<string, string[]> = {
+            finding: ["matched", "canceled"],
+            matched: ["pending", "canceled"],
+            pending: ["processing", "canceled"],
+            processing: ["shipping", "canceled"],
+            shipping: ["finished", "canceled"],
+            finished: []
+        }
+
+        const product = await this.productRepository.findById(productId);
+        const nextStatus = status;
+
+        if (!validTransition[product.status].includes(nextStatus)) {
+            throw new ForbiddenException("Invalid status transition by tx");
+        }
+
+        product.status = nextStatus;
+        await this.productRepository.saveProduct(product);
+    }
 
     async updateProductStatus(username: string, productId: number, updateProductStatusDto: UpdateProductStatusDto) {
 
