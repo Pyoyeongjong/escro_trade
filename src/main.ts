@@ -19,7 +19,7 @@ async function bootstrap() {
   })
 
   app.enableCors({
-    origin: 'http://localhost:3000', // 프론트 주소
+    origin: 'http://localhost', // 프론트 주소
     credentials: true,               // 쿠키 사용할 경우 true
   });
 
@@ -34,6 +34,6 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(new LoggingInterceptor());
 
-  await app.listen(process.env.PORT ?? 3001);
+  await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
