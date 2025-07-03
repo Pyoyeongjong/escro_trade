@@ -20,8 +20,9 @@ async function bootstrap() {
     prefix: '/uploads',
   })
 
+  const frontend = configService.get<string>('frontend.url') ? configService.get<string>('frontend.url') : 'http://localhost:3000';
   app.enableCors({
-    origin: 'http://localhost', // 프론트 주소
+    origin: `${frontend}`, // 프론트 주소
     credentials: true,               // 쿠키 사용할 경우 true
   });
 
