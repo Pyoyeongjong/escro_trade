@@ -2,7 +2,8 @@ import { readFileSync } from 'fs'
 import * as yaml from 'js-yaml'
 import { join } from 'path';
 
-const YAML_CONFIG_FILENAME = '../../config/config.yaml';
+const ENV = process.env.NODE_ENV || 'development'
+const YAML_CONFIG_FILENAME = `../../config/${ENV}.yaml`;
 
 export default () => {
     const config = yaml.load(

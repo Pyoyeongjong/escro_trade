@@ -5,9 +5,11 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { LoggingInterceptor } from './logging/logging.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const configService = app.get(ConfigService);
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true
@@ -34,6 +36,7 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(new LoggingInterceptor());
 
-  await app.listen(process.env.PORT ?? 3000);
+  const port = configService.get<number>('http.port');
+  await app.listen(port ?? 3001);
 }
 bootstrap();
